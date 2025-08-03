@@ -22,20 +22,18 @@ module bus_interconnect (
 );
 
 // ---  Definição das regiões de endereço
+
 // - Memória de programa e de dados
 localparam MEM_BASE    = 32'h00000000;
 localparam MEM_END     = 32'h7FFFFFFF;
 
-// --- Memória dos periféricos
-// - Memória dos LEDS
-localparam LEDS_BASE   = 32'h80000000;
-localparam LEDS_END    = 32'h8000000F;
-
-
+// - Memória dos periféricos
+localparam PERIPH_BASE    = 32'h80000000;
+localparam PERIPH_END     = 32'hFFFFFFFF;
 
 // --- Decodificação de endereços
-wire is_mem    = (proc_addr_i >= MEM_BASE) && (proc_addr_i <= MEM_END);
-wire is_leds   = (proc_addr_i >= LEDS_BASE) && (proc_addr_i <= LEDS_END);
+wire is_mem      = (proc_addr_i >= MEM_BASE)    && (proc_addr_i <= MEM_END);
+wire is_periph   = (proc_addr_i >= PERIPH_BASE) && (proc_addr_i <= PERIPH_END);
 
 // --- Conexões para a memória
 assign mem_rd_en_o   = is_mem ? proc_rd_en_i : 1'b0;
@@ -44,14 +42,14 @@ assign mem_addr_o    = proc_addr_i;
 assign mem_data_o    = proc_data_i;
 
 // --- Conexões para o periférico de LEDs
-assign periph_rd_en_o = is_leds ? proc_rd_en_i : 1'b0;
-assign periph_wr_en_o = is_leds ? proc_wr_en_i : 1'b0;
+assign periph_rd_en_o = is_periph ? proc_rd_en_i : 1'b0;
+assign periph_wr_en_o = is_periph ? proc_wr_en_i : 1'b0;
 assign periph_addr_o  = proc_addr_i;
 assign periph_data_o  = proc_data_i;
 
 // --- Multiplexação da saída de dados
-assign proc_data_o = is_mem  ? mem_data_i :
-                     is_leds ? periph_data_i :
+assign proc_data_o = is_mem    ? mem_data_i :
+                     is_periph ? periph_data_i :
                      32'h00000000;
 
 endmodule
